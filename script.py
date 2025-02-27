@@ -2,6 +2,7 @@ import pickle
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
 import time
 
 
@@ -89,8 +90,27 @@ for job in jobs:
 
   while(next_button):
     try:
+      print('clicking on next button...')
       next_button.click()
       time.sleep(5)
+      print('checking for input fields...')
+      input_fields = modal_dialog.find_elements(By.XPATH, ".//input[@type='text']")
+      for input_field in input_fields:
+        if input_field.get_attribute('value') == "":
+          input_field.send_keys("1")
+
+      print('checking for select fields...')
+      select_fields = modal_dialog.find_elements(By.XPATH, ".//select")
+      for select_field in select_fields:
+        select = Select(select_field)
+        select.select_by_visible_text('Yes')
+
+      print('checking for radio groups...')
+      radio_groups = modal_dialog.find_elements(By.XPATH, ".//fieldset")
+      for radio_group in radio_groups:
+        radio_buttons = radio_group.find_elements(By.XPATH, ".//input[@type='radio']")
+        if not any([radio_button.is_selected() for radio_button in radio_buttons]):
+          radio_buttons[0].click()
       next_button = modal_dialog.find_element(By.XPATH, ".//button[@data-easy-apply-next-button]")
     except Exception as e:
       print('No more next buttons')
